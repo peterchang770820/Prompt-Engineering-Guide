@@ -1,169 +1,169 @@
-# Prompt Applications
+# 提示應用程序
 
-In this guide we will cover some advanced and interesting ways we can use prompt engineering to perform useful and more advanced tasks. 
+在本指南中，我們將介紹一些高級和有趣的方法，我們可以使用提示工程來執行有用和更高級的任務。
 
-**Note that this section is under heavy development.**
-Topics:
-- [Generating Data](#generating-data)
-- [Code as Reasoning](#pal-program-aided-language-models-code-as-reasoning)
+**請注意，此部分正在大力開發中。**
+主題：
+- [生成數據](#generating-data)
+- [作為推理的代碼](#pal-program-aided-language-models-code-as-reasoning)
 - ...
 
 
 ---
-## Generating Data
-LLMs have strong capabilities to generate text. Using effective prompt strategies can steer the model to produce better, consistency, and more factual responses. LLMs can also especially useful for generating data which is really useful to run all sorts of experiments. For example, we can use it to generate quick samples for a sentiment classifier like so:
+## 生成數據
+LLM 具有強大的文本生成能力。使用有效的提示策略可以引導模型產生更好、一致和更符合事實的響應。LLM 還可以特別用於生成對運行各種實驗非常有用的數據。例如，我們可以使用它為情感分類器生成快速樣本，如下所示：
 
-*Prompt:*
+*迅速的：*
 ```
-Produce 10 exemplars for sentiment analysis. Examples are categorized as either positive or negative. Produce 2 negative examples and 8 positive examples. Use this format for the examples:
-Q: <sentence>
-A: <sentiment>
-```
-
-*Output:*
-```
-Q: I just got the best news ever!
-A: Positive
-
-Q: We just got a raise at work!
-A: Positive
-
-Q: I'm so proud of what I accomplished today.
-A: Positive
-
-Q: I'm having the best day ever!
-A: Positive
-
-Q: I'm really looking forward to the weekend.
-A: Positive
-
-Q: I just got the best present ever!
-A: Positive
-
-Q: I'm so happy right now.
-A: Positive
-
-Q: I'm so blessed to have such an amazing family.
-A: Positive
-
-Q: The weather outside is so gloomy.
-A: Negative
-
-Q: I just got some terrible news.
-A: Negative
+製作 10 個用於情緒分析的範例。示例被歸類為正面或負面。產生 2 個反例和 8 個正例。示例使用此格式：
+問：<句子>
+答：<情緒>
 ```
 
-This is very useful. We actually use this example for a different test in another section of the guides.
+*輸出：*
+```
+問：我剛剛得到最好的消息！
+答：正面
+
+問：我們剛加薪！
+答：正面
+
+問：我為今天所取得的成就感到非常自豪。
+答：正面
+
+問：我度過了最美好的一天！
+答：正面
+
+問：我真的很期待週末。
+答：正面
+
+問：我剛剛收到最好的禮物！
+答：正面
+
+問：我現在很開心。
+答：正面
+
+問：我很幸運有這樣一個很棒的家庭。
+答：正面
+
+問：外面的天氣很陰沉。
+答：否定
+
+問：我剛得到一些可怕的消息。
+答：否定
+```
+
+這非常有用。實際上，我們將此示例用於指南另一部分中的不同測試。
 
 ---
 
-## PAL (Program-Aided Language Models): Code as Reasoning
+## PAL（程序輔助語言模型）：代碼推理
  
-[Gao et al., (2022)](https://arxiv.org/abs/2211.10435) presents a method that uses LLMs to read natural language problems and generate programs as the intermediate reasoning steps. Coined, program-aided language models (PAL), it differs from chain-of-thought prompting in that instead of using free-form text to obtain solution it offloads the solution step to a programmatic runtime such as a Python interpreter.
+[Gao et al., (2022)](https://arxiv.org/abs/2211.10435) 提出了一種使用 LLM 閱讀自然語言問題並生成程序作為中間推理步驟的方法。創造的程序輔助語言模型 (PAL)，它與思維鏈提示的不同之處在於，它不是使用自由格式的文本來獲取解決方案，而是將解決方案步驟卸載到編程運行時，例如 Python 解釋器。
 
 ![](../img/pal.png)
 
-Let's look at an example using LangChain and OpenAI GPT-3. We are interested to develop a simple application that's able to interpret the question being asked and provide an answer by leveraging the Python interpreter. 
+讓我們看一個使用 LangChain 和 OpenAI GPT-3 的例子。我們有興趣開發一個簡單的應用程序，該應用程序能夠解釋所提出的問題並通過利用 Python 解釋器提供答案。
 
-Specifically, we are interested to create a functionality that allows the use of the LLM to answer questions that require date understanding. We will provide the LLM a prompt that includes a few exemplars which are adopted from [here](https://github.com/reasoning-machines/pal/blob/main/pal/prompt/date_understanding_prompt.py).  
+具體來說，我們有興趣創建一個功能，允許使用 LLM 來回答需要理解日期的問題。我們將為 LLM 提供一個提示，其中包括從 [此處](https://github.com/reasoning-machines/pal/blob/main/pal/prompt/date_understanding_prompt.py) 採用的一些範例。  
 
-These are the imports we need:
+這些是我們需要的導入：
 
-```python
-import openai
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import os
-from langchain.llms import OpenAI
-from dotenv import load_dotenv
+```蟒蛇
+導入openai
+從日期時間導入日期時間
+從 dateutil.relativedelta 導入 relativedelta
+導入操作系統
+從 langchain.llms 導入 OpenAI
+從 dotenv 導入 load_dotenv
 ```
 
-Let's first configure a few things:
+讓我們首先配置一些東西：
 
-```python
+```蟒蛇
 load_dotenv()
 
-# API configuration
+# 接口配置
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# for LangChain
+# 對於朗鏈
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 ```
 
-Setup model instance:
+設置模型實例：
 
-```python
+```蟒蛇
 llm = OpenAI(model_name='text-davinci-003', temperature=0)
 ```
 
-Setup prompt + question:
+設置提示+問題：
 
-```python
-question = "Today is 27 February 2023. I was born exactly 25 years ago. What is the date I was born in MM/DD/YYYY?"
+```蟒蛇
+question = "今天是 2023 年 2 月 27 日。我剛好 25 年前出生。我出生的日期是 MM/DD/YYYY？"
 
 DATE_UNDERSTANDING_PROMPT = """
-# Q: 2015 is coming in 36 hours. What is the date one week from today in MM/DD/YYYY?
-# If 2015 is coming in 36 hours, then today is 36 hours before.
-today = datetime(2015, 1, 1) - relativedelta(hours=36)
-# One week from today,
-one_week_from_today = today + relativedelta(weeks=1)
-# The answer formatted with %m/%d/%Y is
+# Q：還有36個小時2015年就要到了。MM/DD/YYYY 從今天算起一周後的日期是幾號？
+# 如果 2015 年在 36 小時後到來，那麼今天是 36 小時前。
+今天 = datetime(2015, 1, 1) - relativedelta(hours=36)
+# 從今天開始一周，
+one_week_from_today = 今天 + relativedelta(weeks=1)
+# 格式為 %m/%d/%Y 的答案是
 one_week_from_today.strftime('%m/%d/%Y')
-# Q: The first day of 2019 is a Tuesday, and today is the first Monday of 2019. What is the date today in MM/DD/YYYY?
-# If the first day of 2019 is a Tuesday, and today is the first Monday of 2019, then today is 6 days later.
-today = datetime(2019, 1, 1) + relativedelta(days=6)
-# The answer formatted with %m/%d/%Y is
-today.strftime('%m/%d/%Y')
-# Q: The concert was scheduled to be on 06/01/1943, but was delayed by one day to today. What is the date 10 days ago in MM/DD/YYYY?
-# If the concert was scheduled to be on 06/01/1943, but was delayed by one day to today, then today is one day later.
-today = datetime(1943, 6, 1) + relativedelta(days=1)
-# 10 days ago,
-ten_days_ago = today - relativedelta(days=10)
-# The answer formatted with %m/%d/%Y is
+# Q: 2019年的第一天是星期二，今天是2019年的第一個星期一，MM/DD/YYYY今天是幾號？
+# 如果2019年的第一天是星期二，今天是2019年的第一個星期一，那麼今天就是6天后。
+今天 = datetime(2019, 1, 1) + relativedelta(days=6)
+# 格式為 %m/%d/%Y 的答案是
+今天.strftime('%m/%d/%Y')
+# Q: 原定06/01/1943的演唱會推遲一天到今天。10 天前的日期是 MM/DD/YYYY？
+# 如果音樂會原定於 06/01/1943 舉行，但推遲了一天到今天，那麼今天就是晚一天。
+今天 = datetime(1943, 6, 1) + relativedelta(days=1)
+#10天前，
+十天前 = 今天 - 相對增量（天數 = 10）
+# 格式為 %m/%d/%Y 的答案是
 ten_days_ago.strftime('%m/%d/%Y')
-# Q: It is 4/19/1969 today. What is the date 24 hours later in MM/DD/YYYY?
-# It is 4/19/1969 today.
-today = datetime(1969, 4, 19)
-# 24 hours later,
-later = today + relativedelta(hours=24)
-# The answer formatted with %m/%d/%Y is
-today.strftime('%m/%d/%Y')
-# Q: Jane thought today is 3/11/2002, but today is in fact Mar 12, which is 1 day later. What is the date 24 hours later in MM/DD/YYYY?
-# If Jane thought today is 3/11/2002, but today is in fact Mar 12, then today is 3/1/2002.
-today = datetime(2002, 3, 12)
-# 24 hours later,
-later = today + relativedelta(hours=24)
-# The answer formatted with %m/%d/%Y is
+# 問：今天是 4/19/1969。24 小時後的日期是 MM/DD/YYYY？
+# 今天是 4/19/1969。
+今天 = 日期時間 (1969, 4, 19)
+#24小時後，
+後來=今天+相對增量（小時=24）
+# 格式為 %m/%d/%Y 的答案是
+今天.strftime('%m/%d/%Y')
+# 問：Jane 認為今天是 3/11/2002，但實際上今天是 3 月 12 日，也就是 1 天之後。24 小時後的日期是 MM/DD/YYYY？
+# 如果 Jane 認為今天是 2002 年 3 月 11 日，但實際上今天是 3 月 12 日，那麼今天是 2002 年 3 月 1 日。
+今天 = 日期時間 (2002, 3, 12)
+#24小時後，
+後來=今天+相對增量（小時=24）
+# 格式為 %m/%d/%Y 的答案是
 later.strftime('%m/%d/%Y')
-# Q: Jane was born on the last day of Feburary in 2001. Today is her 16-year-old birthday. What is the date yesterday in MM/DD/YYYY?
-# If Jane was born on the last day of Feburary in 2001 and today is her 16-year-old birthday, then today is 16 years later.
-today = datetime(2001, 2, 28) + relativedelta(years=16)
-# Yesterday,
-yesterday = today - relativedelta(days=1)
-# The answer formatted with %m/%d/%Y is
-yesterday.strftime('%m/%d/%Y')
-# Q: {question}
-""".strip() + '\n'
+#Q：Jane出生於2001年二月的最後一天，今天是她16歲的生日。MM/DD/YYYY 昨天是幾號？
+# 如果 Jane 出生於 2001 年 2 月的最後一天，今天是她 16 歲的生日，那麼今天是 16 年後。
+今天 = datetime(2001, 2, 28) + relativedelta(years=16)
+＃ 昨天，
+昨天 = 今天 - 相對增量（天 = 1）
+# 格式為 %m/%d/%Y 的答案是
+昨天.strftime('%m/%d/%Y')
+# 問：{問題}
+"".strip() + '\n'
 ```
 
-```python
-llm_out = llm(DATE_UNDERSTANDING_PROMPT.format(question=question))
-print(llm_out)
+```蟒蛇
+llm_out = llm（DATE_UNDERSTANDING_PROMPT.format（問題=問題））
+打印（llm_out）
 ```
 
-```python
-exec(llm_out)
-print(born)
+```蟒蛇
+執行（llm_out）
+打印（出生）
 ```
 
-This will output the following: `02/27/1998`
+這將輸出以下內容：`02/27/1998`
 
-See full notebook [here](../notebooks/pe-pal.ipynb)
+查看完整筆記本 [此處](../notebooks/pe-pal.ipynb)
 
 ---
 
-More examples coming soon!
+更多示例即將推出！
 
-[Previous Section (Advanced Usage)](./prompts-advanced-usage.md)
+[上一節（高級用法）](./prompts-advanced-usage.md)
 
-[Next Section (Adversarial Prompting)](./prompt-adversarial.md)
+[下一節（對抗性提示）](./prompt-adversarial.md)

@@ -1,147 +1,157 @@
-# ChatGPT Prompt Engineering
+# ChatGPT 提示工程
 
-In this section, we cover the latest prompt engineering techniques for ChatGPT, including tips, applications, limitations, papers, and additional reading materials.
+在本節中，我們介紹了 ChatGPT 的最新提示工程技術，包括技巧、應用程序、限制、論文和其他閱讀材料。
 
-**Note that this section is under heavy development.**
+**請注意，此部分正在大力開發中。**
 
----
-## ChatGPT Introduction
-
-ChatGPT is a new model [trained by OpenAI](https://openai.com/blog/chatgpt) that has the capability to interact in a conversational way. This model is trained to follow instructions in a prompt to provide appropriate responses in the context of a dialogue. ChatGPT can help with answering questions, suggest recipes, write lyrics in a certain style, generate code, and much more.
-
-ChatGPT is trained using Reinforcement Learning from Human Feedback (RLHF). While this model is a lot more capable than previous GPT iterations (and also trained to reduce harmful and untruthful outputs), it still comes with limitations. Let's cover some of the capabilities and limitations with concrete examples. 
-
-You can use the research preview of ChatGPT [here](chat.openai.com) but for the examples we will use the Chat mode on the OpenAI Playground.
+主題：
+- [ChatGPT 介紹](#chatgpt-介紹)
+- [回顧對話任務](#reviewing-the-conversation-task)
+- [與 ChatGPT 的對話](#conversations-with-chatgpt)
 
 ---
-## Conversation
+## ChatGPT 簡介
 
-In one of the previous guides, we covered a bit about conversation capabilities and role prompting. We covered how to instruct the LLM to have a conversation in a specific style, with a specific intent, behavior, and identity.
+ChatGPT 是一種新模型 [由 OpenAI 訓練](https://openai.com/blog/chatgpt)，能夠以對話方式進行交互。該模型經過訓練，可以按照提示中的說明在對話上下文中提供適當的響應。ChatGPT 可以幫助回答問題、建議食譜、以特定風格編寫歌詞、生成代碼等等。
 
-Let's review our previous basic example where we created a conversational system that's able to generate more technical and scientific responses to questions. 
+ChatGPT 使用人類反饋強化學習 (RLHF) 進行訓練。雖然這個模型比以前的 GPT 迭代更強大（並且還經過訓練可以減少有害和不真實的輸出），但它仍然存在局限性。讓我們通過具體示例介紹一些功能和限制。
 
-*Prompt:*
-```
-The following is a conversation with an AI research assistant. The assistant tone is technical and scientific.
-
-Human: Hello, who are you?
-AI: Greeting! I am an AI research assistant. How can I help you today?
-Human: Can you tell me about the creation of blackholes?
-AI:
-```
-
-From the example above, you can see two important components:
-- the **intent** or explanation of what the chatbot is
-- the **identity** which instructs the style or tone the chatbot will use to respond
-
-The simple example above works well with the text completion APIs that uses `text-davinci-003`. More recently, OpenAI [announced the ChatGPT APIs](https://openai.com/blog/introducing-chatgpt-and-whisper-apis), which is a more powerful and cheaper model called `gpt-3.5-turbo` was specifically built for this type of functionality (chat completions). In fact, OpenAI recommends this is as their best model even for non-chat use cases.  Other benefits of using the ChatGPT APIs are the significant cost reduction (90%) and efficiency. 
-
-Big companies like Snap Inc. and Instacart are already integrating conversational features powered by ChatGPT on their products that range from personalized recommendations to open-ended shopping goals.
+您可以在 [此處](chat.openai.com) 使用 ChatGPT 的研究預覽，但對於示例，我們將使用 OpenAI Playground 上的聊天模式。
 
 ---
-## Conversations with ChatGPT
-To begin demonstrating the capabilities of ChatGPT, we will use the chatbot assistant example above and discuss results. Compared to `text-davinci-003`, the `gpt-3.5-turbo` model that powers ChatGPT uses a chat format as input. The model expects a series of messages as input, and uses those to generate a response. 
+## 回顧對話任務
 
-*Input:*
+在之前的指南之一中，我們介紹了一些關於對話功能和角色提示的內容。我們介紹瞭如何指導 LLM 以特定的風格、特定的意圖、行為和身份進行對話。
+
+讓我們回顧一下我們之前的基本示例，在該示例中我們創建了一個對話系統，該系統能夠對問題產生更多的技術和科學回答。
+
+*迅速的：*
 ```
-SYSTEM: You are an AI research assistant. You use a tone that is technical and scientific.
-USER: Hello, who are you?
-ASSISTANT: Greeting! I am an AI research assistant. How can I help you today?
-USER: Can you tell me about the creation of black holes?
+以下是與一位AI研究助理的對話。助理語氣是技術性的、科學性的。
+
+人類：你好，你是誰？
+艾：您好！我是一名人工智能研究助理。今天我能幫到你什麼？
+人類：你能告訴我黑洞的產生嗎？
+人工智能：
 ```
 
-*Output:*
+從上面的示例中，您可以看到兩個重要的組件：
+- 聊天機器人的**意圖**或解釋
+- 指示聊天機器人將用於響應的樣式或語氣的**身份**
+
+上面的簡單示例適用於使用“text-davinci-003”的文本完成 API。最近，OpenAI [宣布了 ChatGPT API](https://openai.com/blog/introducing-chatgpt-and-whisper-apis)，這是一種更強大、更便宜的模型，稱為“gpt-3.5-turbo”，專門用於專為此類功能（聊天完成）而構建。事實上，OpenAI 推薦這是他們最好的模型，即使對於非聊天用例也是如此。使用 ChatGPT API 的其他好處是顯著降低成本 (90%) 和提高效率。
+
+Snap Inc. 和 Instacart 等大公司已經在其產品中集成了由 ChatGPT 提供支持的對話功能，範圍從個性化推薦到開放式購物目標。
+
+---
+## 與 ChatGPT 的對話
+為了開始演示 ChatGPT 的功能，我們將使用上面的聊天機器人助手示例並討論結果。與“text-davinci-003”相比，支持 ChatGPT 的“gpt-3.5-turbo”模型使用聊天格式作為輸入。該模型需要一系列消息作為輸入，並使用這些消息生成響應。
+
+*輸入：*
 ```
-ASSISTANT: Of course! Black holes are created when a massive star runs out of fuel and collapses under its own gravity. This collapse causes the star to become incredibly dense, with a gravitational field so strong that not even light can escape it. This point of no return is known as the event horizon. Once a star crosses the event horizon, it is considered a black hole...
+SYSTEM：你是一名人工智能研究助理。您使用的是技術和科學的語氣。
+用戶：你好，你是誰？
+助理：您好！我是一名人工智能研究助理。今天我能幫到你什麼？
+用戶：你能告訴我黑洞的產生嗎？
 ```
 
-Note that in the example above, I have simplified the input and output but the ChatGPT chat completion API requires messages to be in a specific format. I have added a snapshot below of how this example would look using the `Chat Mode` in the OpenAI Playground:
+*輸出：*
+```
+助理：當然！當一顆大質量恆星耗盡燃料並在自身引力作用下坍塌時，就會產生黑洞。這種坍縮導致恆星變得異常緻密，引力場強大到連光都無法逃脫。這個不歸路點被稱為事件視界。一旦恆星穿過事件視界，它就被認為是一個黑洞……
+```
+
+請注意，在上面的示例中，我簡化了輸入和輸出，但 ChatGPT 聊天完成 API 要求消息採用特定格式。我在下面添加了一個快照，展示了在 OpenAI Playground 中使用“聊天模式”時該示例的外觀：
 
 ![](../img/chatgpt-1.png)
 
-The more formal API call for our example would look something like the example below:
+我們示例的更正式的 API 調用類似於以下示例：
 
-```python
-import openai
+```蟒蛇
+導入openai
 
 openai.ChatCompletion.create(
-  model="gpt-3.5-turbo",
-  messages=[
-        {"role": "system", "content": "You are an AI research assistant. You use a tone that is technical and scientific."},
-        {"role": "user", "content": "Hello, who are you?"},
-        {"role": "assistant", "content": "Greeting! I am an AI research assistant. How can I help you today?"},
-        {"role": "user", "content": "Can you tell me about the creation of black holes?"}
+  型號="gpt-3.5-turbo",
+  消息=[
+        {"role": "system", "content": "你是一名 AI 研究助理，你用的是技術和科學的語氣。"},
+        {"role": "user", "content": "你好，你是誰？"},
+        {"role": "assistant", "content": "您好！我是人工智能研究助理，今天有什麼能幫到您嗎？"},
+        {"role": "user", "content": "你能告訴我黑洞的產生過程嗎？"}
     ]
 )
 ```
+事實上，未來開發者與 ChatGPT 交互的方式有望通過 [Chat Markup Language](https://github.com/openai/openai-python/blob/main/chatml.md) (ChatML for短的）。
 
+聊天格式支持多輪對話，但它也支持單輪任務，類似於我們在“text-davinci-003”中使用的任務。這意味著我們可以使用 ChatGPT 執行與我們為原始 GPT 模型演示的任務類似的任務。例如，讓我們嘗試使用 ChatGPT 執行以下問答任務：
 
-The chat format enables multi-turn conversations but it also supports single-turn tasks similar to what we used with `text-davinci-003`. This means we can use ChatGPT to perform similar tasks as what we have demonstrated for the original GPT models. For example, let's try to perform the following question answering task using ChatGPT:
-
-*Input:*
+*輸入：*
 ```
-USER: Answer the question based on the context below. Keep the answer short and concise. Respond "Unsure about answer" if not sure about the answer.
+用戶：根據以下上下文回答問題。保持答案簡短明了。如果不確定答案，請回复“Unsure about answer”。
 
-Context: Teplizumab traces its roots to a New Jersey drug company called Ortho Pharmaceutical. There, scientists generated an early version of the antibody, dubbed OKT3. Originally sourced from mice, the molecule was able to bind to the surface of T cells and limit their cell-killing potential. In 1986, it was approved to help prevent organ rejection after kidney transplants, making it the first therapeutic antibody allowed for human use.
+背景：Teplizumab 的根源可以追溯到一家名為 Ortho Pharmaceutical 的新澤西製藥公司。在那裡，科學家們生成了早期版本的抗體，稱為 OKT3。該分子最初來自小鼠，能夠與 T 細胞表面結合併限制其殺傷細胞的潛力。1986 年，它被批准用於幫助預防腎移植後的器官排斥反應，使其成為第一個獲准用於人類的治療性抗體。
 
-Question: What was OKT3 originally sourced from?
+問：OKT3最初來源於什麼？
 
-Answer:
-```
-
-*Output:*
-```
-ASSISTANT: Mice.
+回答：
 ```
 
-Keep in mind that I am adding the `USER` and `ASSISTANT` labels to better demonstrate how the task can be performed using ChatGPT. Here is the example using the Playground:
+*輸出：*
+```
+助理：老鼠。
+```
+
+請記住，我添加“USER”和“ASSISTANT”標籤是為了更好地演示如何使用 ChatGPT 執行任務。以下是使用 Playground 的示例：
 
 ![](../img/chatgpt-classic.png)
 
-More formally, this is the API call (I've only included the message component of the request):
+更正式地說，這是 API 調用（我只包含了請求的消息部分）：
 
-```python
+```蟒蛇
 [
-  {"role": "user", "content": 'Answer the question based on the context below. Keep the answer short and concise. Respond "Unsure about answer" if not sure about the answer.
+  {"role": "user", "content": '根據以下上下文回答問題。保持答案簡短明了。如果不確定答案，請回复“Unsure about answer”。
   
-  Context: Teplizumab traces its roots to a New Jersey drug company called Ortho Pharmaceutical. There, scientists generated an early version of the antibody, dubbed OKT3. Originally sourced from mice, the molecule was able to bind to the surface of T cells and limit their cell-killing potential. In 1986, it was approved to help prevent organ rejection after kidney transplants, making it the first therapeutic antibody allowed for human use
+  背景：Teplizumab 的根源可以追溯到一家名為 Ortho Pharmaceutical 的新澤西製藥公司。在那裡，科學家們生成了早期版本的抗體，稱為 OKT3。該分子最初來自小鼠，能夠與 T 細胞表面結合併限制其殺傷細胞的潛力。1986 年，它被批准用於預防腎移植後的器官排斥反應，成為第一個獲准用於人類的治療性抗體
   
-  Question: What was OKT3 originally sourced from?
+  問：OKT3最初來源於什麼？
   
-  Answer:'}
+  回答：'}
 ]
 ```
 
 ---
-Other use cases to cover:
-- More coming soon!
+
+更多即將推出！
 
 
 
 ---
-### References
+＃＃ 參考
 
-- [UZH_CLyp at SemEval-2023 Task 9: Head-First Fine-Tuning and ChatGPT Data Generation for Cross-Lingual Learning in Tweet Intimacy Prediction](https://arxiv.org/abs/2303.01194) (Mar 2023)
-- [Can ChatGPT Assess Human Personalities? A General Evaluation Framework](https://arxiv.org/abs/2303.01248) (Mar 2023)
-- [Cross-Lingual Summarization via ChatGPT](https://arxiv.org/abs/2302.14229) (Feb 2023)
-- [Dr ChatGPT, tell me what I want to hear: How prompt knowledge impacts health answer correctness](https://arxiv.org/abs/2302.13793) (Feb 2023)
-- [An Independent Evaluation of ChatGPT on Mathematical Word Problems (MWP)](https://arxiv.org/abs/2302.13814) (Feb 2023)
-- [ChatGPT: A Meta-Analysis after 2.5 Months](https://arxiv.org/abs/2302.13795) (Feb 2023)
-- [Let's have a chat! A Conversation with ChatGPT: Technology, Applications, and Limitations](https://arxiv.org/abs/2302.13817) (Feb 2023)
-- [Check Your Facts and Try Again: Improving Large Language Models with External Knowledge and Automated Feedback](https://arxiv.org/abs/2302.12813) (Feb 2023)
-- [On the Robustness of ChatGPT: An Adversarial and Out-of-distribution Perspective](https://arxiv.org/abs/2302.12095) (Feb 2023)
-- [How Generative AI models such as ChatGPT can be (Mis)Used in SPC Practice, Education, and Research? An Exploratory Study](https://arxiv.org/abs/2302.10916) (Feb 2023)
-- [Can ChatGPT Understand Too? A Comparative Study on ChatGPT and Fine-tuned BERT](https://arxiv.org/abs/2302.10198) (Feb 2023)
-- [A Prompt Pattern Catalog to Enhance Prompt Engineering with ChatGPT](https://arxiv.org/abs/2302.11382) (Feb 2023)
-- [Zero-Shot Information Extraction via Chatting with ChatGPT](https://arxiv.org/abs/2302.10205) (Feb 2023)
-- [ChatGPT: Jack of all trades, master of none](https://arxiv.org/abs/2302.10724) (Feb 2023)
-- [A Pilot Evaluation of ChatGPT and DALL-E 2 on Decision Making and Spatial Reasoning](https://arxiv.org/abs/2302.09068) (Feb 2023)
-- [Netizens, Academicians, and Information Professionals' Opinions About AI With Special Reference To ChatGPT](https://arxiv.org/abs/2302.07136) (Feb 2023)
-- [Linguistic ambiguity analysis in ChatGPT](https://arxiv.org/abs/2302.06426) (Feb 2023)
-- [ChatGPT versus Traditional Question Answering for Knowledge Graphs: Current Status and Future Directions Towards Knowledge Graph Chatbots](https://arxiv.org/abs/2302.06466) (Feb 2023)
-- [What ChatGPT and generative AI mean for science](https://www.nature.com/articles/d41586-023-00340-6) (Feb 2023)
-- [Applying BERT and ChatGPT for Sentiment Analysis of Lyme Disease in Scientific Literature](https://arxiv.org/abs/2302.06474) (Feb 2023)
-- [ChatGPT for Good? On Opportunities and Challenges of Large Language Models for Education](https://www.edu.sot.tum.de/fileadmin/w00bed/hctl/_my_direct_uploads/ChatGPT_for_Good_.pdf) (Jan 2023)
-- [Techniques to improve reliability - OpenAI Cookbook](https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md)
-- [Awesome ChatGPT Prompts](https://github.com/f/awesome-chatgpt-prompts)
-- [Introducing ChatGPT](https://openai.com/blog/chatgpt) (Nov 2022)
+- [SemEval-2023 任務 9 中的 UZH_CLyp：用於推文親密預測中跨語言學習的 Head-First Fine-Tuning 和 ChatGPT 數據生成](https://arxiv.org/abs/2303.01194)（2023 年 3 月）
+- [ChatGPT 可以評估人的性格嗎？通用評估框架](https://arxiv.org/abs/2303.01248)（2023 年 3 月）
+- [通過 ChatGPT 進行跨語言摘要](https://arxiv.org/abs/2302.14229)（2023 年 2 月）
+- [ChatGPT 博士，告訴我我想听的：即時知識如何影響健康答案的正確性](https://arxiv.org/abs/2302.13793)（2023 年 2 月）
+- [ChatGPT 對數學應用題 (MWP) 的獨立評估](https://arxiv.org/abs/2302.13814)（2023 年 2 月）
+- [ChatGPT：2.5 個月後的元分析](https://arxiv.org/abs/2302.13795)（2023 年 2 月）
+——【聊聊吧！與 ChatGPT 的對話：技術、應用和局限性](https://arxiv.org/abs/2302.13817)（2023 年 2 月）
+- [檢查事實並重試：利用外部知識和自動反饋改進大型語言模型](https://arxiv.org/abs/2302.12813)（2023 年 2 月）
+- [關於 ChatGPT 的穩健性：對抗性和分佈外的觀點](https://arxiv.org/abs/2302.12095)（2023 年 2 月）
+- [如何在 SPC 實踐、教育和研究中（錯誤地）使用 ChatGPT 等生成式 AI 模型？探索性研究](https://arxiv.org/abs/2302.10916)（2023 年 2 月）
+- 【ChatGPT 也能聽懂嗎？ChatGPT 和微調 BERT 的比較研究](https://arxiv.org/abs/2302.10198)（2023 年 2 月）
+- [使用 ChatGPT 增強提示工程的提示模式目錄](https://arxiv.org/abs/2302.11382)（2023 年 2 月）
+- [通過與 ChatGPT 聊天進行零樣本信息提取](https://arxiv.org/abs/2302.10205)（2023 年 2 月）
+- [ChatGPT：萬事通，萬事通](https://arxiv.org/abs/2302.10724)（2023 年 2 月）
+- [ChatGPT 和 DALL-E 2 關於決策和空間推理的試點評估](https://arxiv.org/abs/2302.09068)（2023 年 2 月）
+- [網民、院士和信息專業人士對 AI 的看法，特別參考 ChatGPT](https://arxiv.org/abs/2302.07136)（2023 年 2 月）
+- [ChatGPT 中的語言歧義分析](https://arxiv.org/abs/2302.06426)（2023 年 2 月）
+- [ChatGPT 與知識圖的傳統問答：知識圖聊天機器人的現狀和未來方向](https://arxiv.org/abs/2302.06466)（2023 年 2 月）
+- [ChatGPT 和生成式人工智能對科學意味著什麼](https://www.nature.com/articles/d41586-023-00340-6)（2023 年 2 月）
+- [將 BERT 和 ChatGPT 應用於科學文獻中萊姆病的情感分析](https://arxiv.org/abs/2302.06474)（2023 年 2 月）
+- [ChatGPT 好嗎？關於大型教育語言模型的機遇和挑戰](https://www.edu.sot.tum.de/fileadmin/w00bed/hctl/_my_direct_uploads/ChatGPT_for_Good_.pdf)（2023 年 1 月）
+- [提高可靠性的技術 - OpenAI Cookbook](https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md)
+- [很棒的 ChatGPT 提示](https://github.com/f/awesome-chatgpt-prompts)
+- [ChatGPT 簡介](https://openai.com/blog/chatgpt)（2022 年 11 月）
+
+---
+[上一節（應用程序）](./prompts-applications.md)
+
+[下一節（對抗性提示）](./prompts-adversarial.md)

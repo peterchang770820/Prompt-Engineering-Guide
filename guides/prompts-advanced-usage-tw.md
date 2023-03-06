@@ -1,419 +1,419 @@
-# Advanced Prompting
-By this point, it should be obvious that it helps to improve prompts to get better results on different tasks. That's the whole idea behind prompt engineering. 
+# 高級提示
+至此，很明顯，它有助於改進提示以在不同任務上獲得更好的結果。這就是提示工程背後的全部理念。
 
-While those examples were fun, let's cover a few concepts more formally before we jump into more advanced concepts. 
+雖然這些示例很有趣，但在我們進入更高級的概念之前，讓我們更正式地介紹一些概念。
 
-Topics:
+主題：
 
-- [Zero-shot Prompting](#zero-shot-prompting)
+- [零射提示](#zero-shot-prompting)
 - [Few-shot Prompting](#few-shot-prompting)
-- [Chain-of-Thought Prompting](#chain-of-thought-prompting)
-- [Zero-shot CoT](#zero-shot-cot)
-- [Self-Consistency](#self-consistency)
-- [Generate Knowledge Prompting](#generated-knowledge-prompting)
-- [Automatic Prompt Engineer](#automatic-prompt-engineer-ape)
+- [Chain-of-Thought-prompting](#chain-of-thought-prompting)
+- [零射擊 CoT](#zero-shot-cot)
+- [自洽](#self-consistency)
+- [生成知識提示](#generated-knowledge-prompting)
+- [自動提示工程師](#automatic-prompt-engineer-ape)
 
 ---
-## Zero-Shot Prompting
-LLMs today trained on large amounts of data and tuned to follow instructions, are capable of performing tasks zero-shot. We actually tried a few zero-shot examples in the previous section. Here is one of the examples we used:
+## 零射擊提示
+今天的 LLMs 接受了大量數據的訓練並調整以遵循指令，能夠零樣本地執行任務。我們實際上在上一節中嘗試了一些零樣本示例。這是我們使用的示例之一：
 
-*Prompt:*
+*迅速的：*
 ```
-Classify the text into neutral, negative or positive. 
+將文本分類為中性、負面或正面。
 
-Text: I think the vacation is okay.
-Sentiment:
-```
-
-*Output:*
-```
-Neutral
+文字：我覺得假期還可以。
+情緒：
 ```
 
-Note that in the prompt above we didn't provide the model any examples -- that's the zero-shot capabilities at work. When zero-shot doesn't work, it's recommended to provide demonstrations or examples in the prompt. Below we discuss the approach known as few-shot prompting.
+*輸出：*
+```
+中性的
+```
+
+請注意，在上面的提示中，我們沒有為模型提供任何示例——這是工作中的零樣本功能。當 zero-shot 不起作用時，建議在提示中提供演示或示例。下面我們將討論稱為小樣本提示的方法。
 
 ---
-## Few-Shot Prompting
+## 少量提示
 
-While large-language models already demonstrate remarkable zero-shot capabilities, they still fall short on more complex tasks when using the zero-shot setting. To improve on this, few-shot prompting is used as a technique to enable in-context learning where we provide demonstrations in the prompt to steer the model to better performance. The demonstrations serve as conditioning for subsequent examples where we would like the model to generate a response. 
+雖然大型語言模型已經展示了卓越的零樣本能力，但在使用零樣本設置時它們仍然無法完成更複雜的任務。為了改進這一點，使用少量提示作為一種技術來啟用上下文學習，我們在提示中提供演示以引導模型獲得更好的性能。這些演示用作後續示例的條件，我們希望模型在這些示例中生成響應。
 
-Let's demonstrate few-shot prompting via an example that was presented in [Brown et al. 2020](https://arxiv.org/abs/2005.14165). In the example, the task is to correctly use a new word in a sentence.
+讓我們通過 [Brown et al. 2020](https://arxiv.org/abs/2005.14165)。在示例中，任務是在句子中正確使用新詞。
 
-*Prompt:*
+*迅速的：*
 ```
-A "whatpu" is a small, furry animal native to Tanzania. An example of a sentence that uses
-the word whatpu is:
-We were traveling in Africa and we saw these very cute whatpus.
-To do a "farduddle" means to jump up and down really fast. An example of a sentence that uses
-the word farduddle is:
-```
-
-*Output:*
-```
-When we won the game, we all started to farduddle in celebration.
+“whatpu”是一種原產於坦桑尼亞的小型毛茸茸的動物。使用的句子示例
+whatpu這個詞是：
+我們在非洲旅行時看到了這些非常可愛的 whatpus。
+做一個“farduddle”意味著非常快地跳上跳下。使用的句子示例
+farduddle 這個詞是：
 ```
 
-We can clearly observe that the model has somehow learned how to perform the task by providing it just one example (i.e., 1-shot). For more difficult tasks, we can experiment with increasing the demonstrations (e.g., 3-shot, 5-shot, 10-shot, etc.). 
-
-Following the findings from [Min et al. (2022)](https://arxiv.org/abs/2202.12837), here a few more tips about demonstrations/exemplars when doing few-shot:
-
-- "the label space and the distribution of the input text specified by the demonstrations are both key (regardless of whether the labels are correct for individual inputs)"
-- the format you use also plays a key role in performance, even if you just use random labels, this is much better than no labels at all.  
-- additional results show that selecting random labels from a true distribution of labels (instead of a uniform distribution) also helps.
-
-Let's try out a few examples. Let's first try an example with random labels (meaning the labels Negative and Positive are randomly assigned to the inputs):
-
-*Prompt:*
+*輸出：*
 ```
-This is awesome! // Negative
-This is bad! // Positive
-Wow that movie was rad! // Positive
-What a horrible show! //
+當我們贏得比賽時，我們都開始狂歡慶祝。
 ```
 
-*Output:*
-```
-Negative
-```
+我們可以清楚地觀察到，該模型僅通過提供一個示例（即 1-shot）就以某種方式學會瞭如何執行任務。對於更困難的任務，我們可以嘗試增加演示（例如，3-shot、5-shot、10-shot 等）。
 
-We still get the correct answer, even though the labels have been randomized. Note that we also kept the format, which helps too. In fact, with further experimentation it seems the newer GPT models we are experimenting with are becoming more robust to even random format. Example:
+根據 [Min 等人的研究結果。(2022)](https://arxiv.org/abs/2202.12837)，這裡有一些關於在進行少鏡頭時的演示/示例的更多提示：
 
-*Prompt:*
-```
-Positive This is awesome! 
-This is bad! Negative
-Wow that movie was rad!
-Positive
-What a horrible show! --
-```
+-“演示指定的標籤空間和輸入文本的分佈都是關鍵（無論標籤是否對單個輸入正確）”
+- 你使用的格式對性能也起著關鍵作用，即使你只是使用隨機標籤，這也比根本沒有標籤要好得多。  
+- 額外的結果表明，從標籤的真實分佈（而不是均勻分佈）中選擇隨機標籤也有幫助。
 
-*Output:*
+讓我們嘗試幾個例子。讓我們首先嘗試一個帶有隨機標籤的示例（意味著標籤 Negative 和 Positive 隨機分配給輸入）：
+
+*迅速的：*
 ```
-Negative
+這太棒了！// 消極的
+這不好！// 積極的
+哇那部電影太棒了！// 積極的
+多麼可怕的表演！//
 ```
 
-There is no consistency in the format above but the model still predicted the correct label. We have to conduct more thorough analysis to confirm if this holds true for different and more complex tasks, including different variations of prompts.
-
-### Limitations of Few-shot Prompting
-
-Standard few-shot prompting works well for many tasks but is still not a perfect technique especially when dealing with more complex reasoning tasks. Let's demonstrate why this is the case. Do you recall the previous example where we provided the following task:
-
+*輸出：*
 ```
-The odd numbers in this group add up to an even number: 15, 32, 5, 13, 82, 7, 1. 
-
-A: 
+消極的
 ```
 
-If we try this again, the model outputs the following:
+我們仍然得到正確的答案，即使標籤是隨機的。請注意，我們還保留了格式，這也有幫助。事實上，隨著進一步的實驗，我們正在實驗的較新的 GPT 模型似乎對隨機格式也變得更加穩健。例子：
 
+*迅速的：*
 ```
-Yes, the odd numbers in this group add up to 107, which is an even number.
-```
-
-This is not the correct response, which not only highlights the limitations of these systems but that there is a need for more advanced prompt engineering. 
-
-Let's try to add some examples to see if few-shot prompting improves the results.
-
-*Prompt:*
-```
-The odd numbers in this group add up to an even number: 4, 8, 9, 15, 12, 2, 1.
-A: The answer is False.
-
-The odd numbers in this group add up to an even number: 17,  10, 19, 4, 8, 12, 24.
-A: The answer is True.
-
-The odd numbers in this group add up to an even number: 16,  11, 14, 4, 8, 13, 24.
-A: The answer is True.
-
-The odd numbers in this group add up to an even number: 17,  9, 10, 12, 13, 4, 2.
-A: The answer is False.
-
-The odd numbers in this group add up to an even number: 15, 32, 5, 13, 82, 7, 1. 
-A: 
+積極 這太棒了！
+這不好！消極的
+哇那部電影太棒了！
+積極的
+多麼可怕的表演！--
 ```
 
-*Output:*
+*輸出：*
 ```
-The answer is True.
-```
-
-That didn't work. It seems like few-shot prompting is not enough to get reliable responses for this type of reasoning problem. The example above provides basic information on the task. If you take a closer look, the type of task we have introduced involves a few more reasoning steps. In other words, it might help if we break the problem down into steps and demonstrate that to the model. More recently, [chain-of-thought (CoT) prompting](https://arxiv.org/abs/2201.11903) has been popularized to address more complex arithmetic, commonsense, and symbolic reasoning tasks.
-
-Overall, it seems that providing examples is useful for solving some tasks. When zero-shot prompting and few-shot prompting are not sufficient, it might mean that the whatever was learned by the model isn't enough to do well at the task. From here it is recommended to start thinking about fine-tuning your own models or experimenting with more advanced prompting techniques. Up next we talk about one of the popular prompting techniques called chain-of-thought prompting which has gained a lot of popularity. 
-
----
-
-## Chain-of-Thought Prompting
-
-Introduced in [Wei et al. (2022)](https://arxiv.org/abs/2201.11903), chain-of-thought (CoT) prompting enables complex reasoning capabilities through intermediate reasoning steps. You can combine it with few-shot prompting to get better results on more complex tasks that require reasoning before responding.
-
-*Prompt:*
-```
-The odd numbers in this group add up to an even number: 4, 8, 9, 15, 12, 2, 1.
-A: Adding all the odd numbers (9, 15, 1) gives 25. The answer is False.
-
-The odd numbers in this group add up to an even number: 17,  10, 19, 4, 8, 12, 24.
-A: Adding all the odd numbers (17, 19) gives 36. The answer is True.
-
-The odd numbers in this group add up to an even number: 16,  11, 14, 4, 8, 13, 24.
-A: Adding all the odd numbers (11, 13) gives 24. The answer is True.
-
-The odd numbers in this group add up to an even number: 17,  9, 10, 12, 13, 4, 2.
-A: Adding all the odd numbers (17, 9, 13) gives 39. The answer is False.
-
-The odd numbers in this group add up to an even number: 15, 32, 5, 13, 82, 7, 1. 
-A:
+消極的
 ```
 
-*Output:*
+上面的格式不一致，但模型仍然預測了正確的標籤。我們必須進行更徹底的分析，以確認這是否適用於不同的和更複雜的任務，包括不同的提示變體。
+
+### 小樣本提示的局限性
+
+標準的小樣本提示適用於許多任務，但仍然不是一種完美的技術，尤其是在處理更複雜的推理任務時。讓我們來說明為什麼會這樣。你還記得前面的例子嗎，我們提供了以下任務：
+
 ```
-Adding all the odd numbers (15, 5, 13, 7, 1) gives 41. The answer is False.
+這組中的奇數加起來是偶數：15、32、5、13、82、7、1。
+
+A：
 ```
 
-Wow! We can see a perfect result when we provided the reasoning step. In fact, we can solve this task by providing even fewer examples, i.e., just one example seems enough:
+如果我們再試一次，模型會輸出以下內容：
 
-*Prompt:*
 ```
-The odd numbers in this group add up to an even number: 4, 8, 9, 15, 12, 2, 1.
-A: Adding all the odd numbers (9, 15, 1) gives 25. The answer is False.
-
-The odd numbers in this group add up to an even number: 15, 32, 5, 13, 82, 7, 1. 
-A:
+是的，這組奇數加起來是107，是偶數。
 ```
 
-*Output:*
+這不是正確的回應，它不僅突出了這些系統的局限性，而且需要更高級的提示工程。
+
+讓我們嘗試添加一些示例以查看小樣本提示是否可以改善結果。
+
+*迅速的：*
 ```
-Adding all the odd numbers (15, 5, 13, 7, 1) gives 41. The answer is False.
+這組中的奇數加起來是偶數：4、8、9、15、12、2、1。
+答：答案是假的。
+
+這組中的奇數加起來是偶數：17、10、19、4、8、12、24。
+答：答案是正確的。
+
+這組中的奇數加起來是偶數：16、11、14、4、8、13、24。
+答：答案是正確的。
+
+這組中的奇數加起來是偶數：17、9、10、12、13、4、2。
+答：答案是假的。
+
+這組中的奇數加起來是偶數：15、32、5、13、82、7、1。
+A：
 ```
 
-Keep in mind that the authors claim that this is an emergent ability that arises with sufficiently large language models. 
+*輸出：*
+```
+答案是正確的。
+```
+
+那沒有用。對於此類推理問題，似乎少樣本提示不足以獲得可靠的響應。上面的示例提供了有關任務的基本信息。如果您仔細觀察，我們介紹的任務類型涉及更多的推理步驟。換句話說，如果我們將問題分解為多個步驟並向模型演示，可能會有所幫助。最近，[思維鏈 (CoT) 提示](https://arxiv.org/abs/2201.11903) 得到普及，用於解決更複雜的算術、常識和符號推理任務。
+
+總的來說，提供示例似乎對解決某些任務很有用。當零樣本提示和少樣本提示不夠時，這可能意味著模型學到的任何東西都不足以完成任務。建議從這裡開始考慮微調您自己的模型或嘗試更高級的提示技術。接下來我們將討論一種流行的提示技術，稱為思維鏈提示，它已經很受歡迎。
 
 ---
 
-## Zero-Shot CoT
+## 思維鏈提示
 
-One recent idea that came out more recently is the idea of [zero-shot CoT](https://arxiv.org/abs/2205.11916) (Kojima et al. 2022) that essentially involves adding "Let's think step by step" to the original prompt. Let's try a simple problem and see how the model performs:
+介紹於 [Wei 等人。(2022)](https://arxiv.org/abs/2201.11903)，思維鏈 (CoT) 提示通過中間推理步驟啟用複雜的推理能力。您可以將它與少量提示結合使用，以便在響應前需要推理的更複雜任務中獲得更好的結果。
 
-*Prompt:*
+*迅速的：*
 ```
-I went to the market and bought 10 apples. I gave 2 apples to the neighbor and 2 to the repairman. I then went and bought 5 more apples and ate 1. How many apples did I remain with?
-```
+這組中的奇數加起來是偶數：4、8、9、15、12、2、1。
+A：將所有奇數 (9, 15, 1) 相加得到 25。答案為假。
 
-*Output:*
-```
-11 apples
-```
+這組中的奇數加起來是偶數：17、10、19、4、8、12、24。
+A：將所有奇數 (17, 19) 相加得到 36。答案是正確的。
 
-The answer is incorrect! Now Let's try with the special prompt. 
+這組中的奇數加起來是偶數：16、11、14、4、8、13、24。
+A：將所有奇數 (11, 13) 相加得到 24。答案是正確的。
 
-*Prompt:*
-```
-I went to the market and bought 10 apples. I gave 2 apples to the neighbor and 2 to the repairman. I then went and bought 5 more apples and ate 1. How many apples did I remain with?
+這組中的奇數加起來是偶數：17、9、10、12、13、4、2。
+A：將所有奇數（17、9、13）相加得到 39。答案為假。
 
-Let's think step by step.
-```
-
-*Output:*
-```
-First, you started with 10 apples.
-You gave away 2 apples to the neighbor and 2 to the repairman, so you had 6 apples left.
-Then you bought 5 more apples, so now you had 11 apples.
-Finally, you ate 1 apple, so you would remain with 10 apples.
+這組中的奇數加起來是偶數：15、32、5、13、82、7、1。
+A：
 ```
 
-It's actually impressive that this simple prompt is effective at this task. This is particularly useful where you don't have too many examples to use in the prompt.
+*輸出：*
+```
+將所有奇數（15、5、13、7、1）相加得到 41。答案為假。
+```
+
+哇！當我們提供推理步驟時，我們可以看到一個完美的結果。事實上，我們可以通過提供更少的例子來解決這個任務，即一個例子似乎就足夠了：
+
+*迅速的：*
+```
+這組中的奇數加起來是偶數：4、8、9、15、12、2、1。
+A：將所有奇數 (9, 15, 1) 相加得到 25。答案為假。
+
+這組中的奇數加起來是偶數：15、32、5、13、82、7、1。
+A：
+```
+
+*輸出：*
+```
+將所有奇數（15、5、13、7、1）相加得到 41。答案為假。
+```
+
+請記住，作者聲稱這是一種隨著足夠大的語言模型而出現的新興能力。
 
 ---
 
-## Self-Consistency
+## 零射擊 CoT
 
-Perhaps one of the more advanced techniques out there for prompt engineering is self-consistency. Proposed by [Wang et al. (2022)](https://arxiv.org/pdf/2203.11171.pdf), self-consistency aims "to replace the naive greedy decoding used in chain-of-thought prompting". The idea is to sample multiple, diverse reasoning paths through few-shot CoT, and use the generations to select the most consistent answer. This helps to boost the performance of CoT prompting on tasks involving arithmetic and commonsense reasoning.
+最近出現的一個想法是 [zero-shot CoT](https://arxiv.org/abs/2205.11916)（Kojima 等人，2022 年）的想法，它主要涉及將“讓我們逐步思考”添加到原來的提示。讓我們嘗試一個簡單的問題，看看模型的表現如何：
 
-Let's try the following example for arithmetic reasoning:
-
-*Prompt:*
+*迅速的：*
 ```
-When I was 6 my sister was half my age. Now
-I’m 70 how old is my sister?
+我去市場買了 10 個蘋果。我給了鄰居 2 個蘋果，給了修理工 2 個。然後我又買了 5 個蘋果，吃了 1 個。我還剩下多少個蘋果？
 ```
 
-*Output:*
+*輸出：*
+```
+11個蘋果
+```
+
+答案不正確！現在讓我們嘗試使用特殊提示。
+
+*迅速的：*
+```
+我去市場買了 10 個蘋果。我給了鄰居 2 個蘋果，給了修理工 2 個。然後我又買了 5 個蘋果，吃了 1 個。我還剩下多少個蘋果？
+
+讓我們一步一步地思考。
+```
+
+*輸出：*
+```
+首先，您從 10 個蘋果開始。
+你給了鄰居 2 個蘋果，給了修理工 2 個，所以你還剩下 6 個蘋果。
+然後你又買了 5 個蘋果，所以現在你有 11 個蘋果。
+最後，你吃了 1 個蘋果，所以你還剩下 10 個蘋果。
+```
+
+令人印象深刻的是，這個簡單的提示在完成這項任務時非常有效。當您沒有太多示例可用於提示時，這特別有用。
+
+---
+
+## 自洽
+
+也許用於快速工程的更先進的技術之一是自洽性。由 [Wang 等人提出。(2022)](https://arxiv.org/pdf/2203.11171.pdf)，自洽的目的是“取代思維鏈提示中使用的天真貪婪解碼”。這個想法是通過 few-shot CoT 對多個不同的推理路徑進行採樣，並使用生成來選擇最一致的答案。這有助於提高 CoT 提示在涉及算術和常識推理的任務上的性能。
+
+讓我們試試下面的例子來進行算術推理：
+
+*迅速的：*
+```
+我 6 歲的時候，我姐姐只有我一半大。現在
+我70歲了，我妹妹幾歲？
+```
+
+*輸出：*
 ```
 35
 ```
 
-The output is obviously wrong! How may we improve this with self-consistency? Let's try it out. We will use the few-shot exemplars from Wang et al. 2022 (Table 17):
+輸出明顯不對！我們如何通過自我一致性來改善這一點？讓我們試試看。我們將使用 Wang 等人的少量示例。2022 年（表 17）：
 
-*Prompt:*
+*迅速的：*
 ```
-Q: There are 15 trees in the grove. Grove workers will plant trees in the grove today. After they are done,
-there will be 21 trees. How many trees did the grove workers plant today?
-A: We start with 15 trees. Later we have 21 trees. The difference must be the number of trees they planted.
-So, they must have planted 21 - 15 = 6 trees. The answer is 6.
+問：樹林裡有 15 棵樹。今天，樹林工人將在樹林裡植樹。他們完成後，
+將有 21 棵樹。樹林工人今天種了多少棵樹？
+A：我們從 15 棵樹開始。後來我們有 21 棵樹。差異必須是他們種植的樹木數量。
+所以，他們一定種了 21 - 15 = 6 棵樹。答案是 6。
 
-Q: If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in the parking lot?
-A: There are 3 cars in the parking lot already. 2 more arrive. Now there are 3 + 2 = 5 cars. The answer is 5.
+問：如果停車場有 3 輛車，還有 2 輛車到達，停車場有多少輛車？
+A: 停車場裡已經有 3 輛車了。還有 2 個到達。現在有 3 + 2 = 5 輛車。答案是 5。
 
-Q: Leah had 32 chocolates and her sister had 42. If they ate 35, how many pieces do they have left in total?
-A: Leah had 32 chocolates and Leah’s sister had 42. That means there were originally 32 + 42 = 74
-chocolates. 35 have been eaten. So in total they still have 74 - 35 = 39 chocolates. The answer is 39.
+問：利亞有 32 塊巧克力，她姐姐有 42 塊。如果他們吃了 35 塊，他們總共還剩下多少塊？
+A: Leah 有 32 塊巧克力，Leah 的姐姐有 42 塊。也就是說原來有 32 + 42 = 74
+巧克力。吃了35個。所以他們總共還有 74 - 35 = 39 塊巧克力。答案是 39。
 
-Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops. How many lollipops
-did Jason give to Denny?
-A: Jason had 20 lollipops. Since he only has 12 now, he must have given the rest to Denny. The number of
-lollipops he has given to Denny must have been 20 - 12 = 8 lollipops. The answer is 8.
+問：傑森有 20 根棒棒糖。他給丹尼一些棒棒糖。現在傑森有 12 根棒棒糖。多少棒棒糖
+傑森給丹尼了嗎？
+A：傑森有 20 根棒棒糖。既然他現在只有12個，那他肯定把剩下的給了丹尼。的數量
+他給丹尼的棒棒糖一定是 20 - 12 = 8 棒棒糖。答案是8。
 
-Q: Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How many toys does
-he have now?
-A: He has 5 toys. He got 2 from mom, so after that he has 5 + 2 = 7 toys. Then he got 2 more from dad, so
-in total he has 7 + 2 = 9 toys. The answer is 9.
+問：肖恩有五個玩具。聖誕節，他從爸爸媽媽那裡得到了兩個玩具。有多少玩具
+他現在有嗎？
+A：他有5個玩具。他從媽媽那裡得到了 2 個，所以之後他有 5 + 2 = 7 個玩具。然後他又從爸爸那裡得到了 2 個，所以
+他總共有 7 + 2 = 9 個玩具。答案是9。
 
-Q: There were nine computers in the server room. Five more computers were installed each day, from
-monday to thursday. How many computers are now in the server room?
-A: There are 4 days from monday to thursday. 5 computers were added each day. That means in total 4 * 5 =
-20 computers were added. There were 9 computers in the beginning, so now there are 9 + 20 = 29 computers.
-The answer is 29.
+問：服務器機房裡有九台電腦。每天安裝五台以上的電腦，從
+週一到週四。服務器機房裡現在有多少台電腦？
+A：週一到週四有4天。每天增加 5 台計算機。這意味著總共 4 * 5 =
+增加了 20 台計算機。一開始有9台電腦，所以現在有9+20=29台電腦。
+答案是 29。
 
-Q: Michael had 58 golf balls. On tuesday, he lost 23 golf balls. On wednesday, he lost 2 more. How many
-golf balls did he have at the end of wednesday?
-A: Michael initially had 58 balls. He lost 23 on Tuesday, so after that he has 58 - 23 = 35 balls. On
-Wednesday he lost 2 more so now he has 35 - 2 = 33 balls. The answer is 33.
+問：邁克爾有 58 個高爾夫球。週二，他丟了 23 個高爾夫球。週三，他又輸了 2 場。多少
+星期三結束時他有高爾夫球嗎？
+答：邁克爾最初有 58 個球。他在星期二輸了 23，所以在那之後他有 58 - 23 = 35 個球。在
+星期三他又輸了 2 個，所以現在他有 35 - 2 = 33 個球。答案是 33。
 
-Q: Olivia has $23. She bought five bagels for $3 each. How much money does she have left?
-A: She bought 5 bagels for $3 each. This means she spent 5
+問：奧利維亞有 23 美元。她以每個 3 美元的價格買了五個百吉餅。她還剩多少錢？
+A：她以每個 3 美元的價格買了 5 個百吉餅。這意味著她花了 5
 
-Q: When I was 6 my sister was half my age. Now I’m 70 how old is my sister?
-A:
-```
-
-*Output 1:*
-```
-When I was 6 my sister was half my age, so she was 3. Now I am 70, so she is 70 - 3 = 67. The answer is 67.
+問：當我 6 歲時，我姐姐只有我一半大。現在我70歲了，我妹妹幾歲？
+A：
 ```
 
-*Output 2:*
+*輸出1：*
 ```
-When the narrator was 6, his sister was half his age, which is 3. Now that the narrator is 70, his sister would be 70 - 3 = 67 years old. The answer is 67.
-```
-
-*Output 3:*
-```
-When I was 6 my sister was half my age, so she was 3. Now I am 70, so she is 70/2 = 35. The answer is 35.
+我 6 歲時，我姐姐是我一半大，所以她是 3。現在我 70 歲，所以她是 70 - 3 = 67。答案是 67。
 ```
 
-Computing for the final answer involves a few steps (check out the paper for the details) but for the sake of simplicity, we can clearly see that there is already a majority answer emerging so that would essentially become the final answer. 
+*輸出2：*
+```
+敘述者 6 歲時，他的妹妹是他年齡的一半，即 3 歲。現在敘述者 70 歲，他的妹妹將是 70 - 3 = 67 歲。答案是 67。
+```
+
+*輸出3：*
+```
+當我 6 歲時，我姐姐的年齡只有我的一半，所以她是 3。現在我 70 歲，所以她是 70/2 = 35。答案是 35。
+```
+
+最終答案的計算涉及幾個步驟（詳情請查看論文），但為了簡單起見，我們可以清楚地看到已經出現了多數答案，因此這基本上成為了最終答案。
 
 ---
-## Generated Knowledge Prompting
+## 生成知識提示
 
-LLMs continue to be improved and one popular technique include the ability to incorporate knowledge or information to help the model make more accurate predictions. 
+LLM 不斷得到改進，一種流行的技術包括整合知識或信息以幫助模型做出更準確預測的能力。
 
-Using a similar idea, can the model also be used to generate knowledge before making a prediction? That's what is attempted in the paper by [Liu et al. 2022](https://arxiv.org/pdf/2110.08387.pdf) -- generate knowledge to be used as part of the prompt. In particular, how helpful is this for tasks such as commonsense reasoning?
+使用類似的想法，該模型是否也可以用於在進行預測之前生成知識？這就是 [Liu 等人在論文中嘗試的內容。2022](https://arxiv.org/pdf/2110.08387.pdf) -- 生成知識以用作提示的一部分。特別是，這對常識推理等任務有多大幫助？
 
-Let's try a simple prompt:
+讓我們嘗試一個簡單的提示：
 
-*Prompt:*
+*迅速的：*
 ```
-Part of golf is trying to get a higher point total than others. Yes or No?
-```
-
-*Output:*
-```
-Yes.
+高爾夫的一部分是試圖獲得比其他人更高的總分。是還是不是？
 ```
 
-This type of mistakes reveal the limitations of LLMs to perform tasks that require more knowledge about the world. How do we improve this with knowledge generation?
-
-First we generate a few "knowledges":
-
-*Prompt:*
+*輸出：*
 ```
-Input: Greece is larger than mexico.
-Knowledge: Greece is approximately 131,957 sq km, while Mexico is approximately 1,964,375 sq km, making Mexico 1,389% larger than Greece.
-
-Input: Glasses always fog up.
-Knowledge: Condensation occurs on eyeglass lenses when water vapor from your sweat, breath, and ambient humidity lands on a cold surface, cools, and then changes into tiny drops of liquid, forming a film that you see as fog. Your lenses will be relatively cool compared to your breath, especially when the outside air is cold.
-
-Input: A fish is capable of thinking.
-Knowledge: Fish are more intelligent than they appear. In many areas, such as memory, their cognitive powers match or exceed those of ’higher’ vertebrates including non-human primates. Fish’s long-term memories help them keep track of complex social relationships.
-
-Input: A common effect of smoking lots of cigarettes in one’s lifetime is a higher than normal chance of getting lung cancer.
-Knowledge: Those who consistently averaged less than one cigarette per day over their lifetime had nine times the risk of dying from lung cancer than never smokers. Among people who smoked between one and 10 cigarettes per day, the risk of dying from lung cancer was nearly 12 times higher than that of never smokers.
-
-Input: A rock is the same size as a pebble.
-Knowledge: A pebble is a clast of rock with a particle size of 4 to 64 millimetres based on the Udden-Wentworth scale of sedimentology. Pebbles are generally considered larger than granules (2 to 4 millimetres diameter) and smaller than cobbles (64 to 256 millimetres diameter).
-
-Input: Part of golf is trying to get a higher point total than others.
-Knowledge:
+是的。
 ```
 
-*Knowledge 1:*
-```
-The objective of golf is to play a set of holes in the least number of strokes. A round of golf typically consists of 18 holes. Each hole is played once in the round on a standard golf course. Each stroke is counted as one point, and the total number of strokes is used to determine the winner of the game.
-```
+這種類型的錯誤揭示了 LLM 在執行需要更多關於世界的知識的任務方面的局限性。我們如何通過知識生成來改善這一點？
 
-*Knowledge 2:*
+首先我們生成一些“知識”：
+
+*迅速的：*
 ```
-Golf is a precision club-and-ball sport in which competing players (or golfers) use many types of clubs to hit balls into a series of holes on a course using the fewest number of strokes. The goal is to complete the course with the lowest score, which is calculated by adding up the total number of strokes taken on each hole. The player with the lowest score wins the game.
-```
+輸入：希臘比墨西哥大。
+知識：希臘大約有 131,957 平方公里，而墨西哥大約有 1,964,375 平方公里，墨西哥比希臘大 1,389%。
 
-We are using the prompt provided in the paper by [Liu et al. 2022](https://arxiv.org/pdf/2110.08387.pdf).
+輸入：眼鏡總是起霧。
+知識：當您的汗水、呼吸和環境濕度中的水蒸氣落在冷表面上、冷卻，然後變成微小的液體滴，形成一層您看到的霧狀薄膜時，眼鏡鏡片上就會發生凝結。與您的呼吸相比，您的鏡片會相對涼爽，尤其是當室外空氣寒冷時。
 
-Next step is to integrate the knowledge and get a prediction. I reformatted the question into QA format to guide the answer format.
+輸入：一條魚能夠思考。
+知識：魚比看起來更聰明。在記憶等許多領域，它們的認知能力與包括非人類靈長類動物在內的“高等”脊椎動物相當或超過它們的認知能力。魚的長期記憶幫助它們跟踪複雜的社會關係。
 
-*Prompt:*
-```
-Question: Part of golf is trying to get a higher point total than others. Yes or No?
+輸入：一生中大量吸煙的一個常見影響是患肺癌的機率高於正常水平。
+知識：那些在一生中平均每天平均吸煙少於一支的人死於肺癌的風險是從不吸煙者的九倍。在每天吸 1 到 10 支香煙的人中，死於肺癌的風險比從不吸煙的人高出近 12 倍。
 
-Knowledge: The objective of golf is to play a set of holes in the least number of strokes. A round of golf typically consists of 18 holes. Each hole is played once in the round on a standard golf course. Each stroke is counted as one point, and the total number of strokes is used to determine the winner of the game.
+輸入：一塊石頭和鵝卵石一樣大。
+知識：根據 Udden-Wentworth 沉積學尺度，鵝卵石是粒徑為 4 至 64 毫米的岩石碎屑。通常認為鵝卵石大於顆粒（直徑 2 至 4 毫米），小於卵石（直徑 64 至 256 毫米）。
 
-Explain and Answer: 
-```
-
-*Answer 1 (confidence very high):*
-```
-No, the objective of golf is not to get a higher point total than others. Rather, the objective is to play a set of holes in the least number of strokes. The total number of strokes is used to determine the winner of the game, not the total number of points.
+輸入：高爾夫的一部分是試圖獲得比其他人更高的總分。
+知識：
 ```
 
-
+*知識1：*
 ```
-Question: Part of golf is trying to get a higher point total than others. Yes or No?
-
-Knowledge: Golf is a precision club-and-ball sport in which competing players (or golfers) use many types of clubs to hit balls into a series of holes on a course using the fewest number of strokes. The goal is to complete the course with the lowest score, which is calculated by adding up the total number of strokes taken on each hole. The player with the lowest score wins the game.
-
-Explain and Answer:
+高爾夫的目標是以最少的桿數打完一組球洞。一輪高爾夫球通常由 18 個洞組成。每個洞在標準高爾夫球場上一輪打一次。每桿計一分，總桿數決定比賽勝負。
 ```
 
-*Answer 2 (confidence is a lot lower):*
+*知識2：*
 ```
-Yes, part of golf is trying to get a higher point total than others. Each player tries to complete the course with the lowest score, which is calculated by adding up the total number of strokes taken on each hole. The player with the lowest score wins the game.
+高爾夫是一項精確的球桿和球類運動，參賽選手（或高爾夫球手）使用多種類型的球桿以最少的擊球次數將球擊入球場上的一系列球洞中。目標是以最低分數完成課程，該分數是通過將每個洞的總桿數相加計算得出的。得分最低的玩家贏得遊戲。
 ```
 
-Some really interesting things happened with this example. In the first answer, the model was very confident but in the second not so much. I simplify the process for demonstration purposes but there are few more details to consider when arriving to the final answer. Check out the paper for more.
+我們正在使用 [Liu 等人在論文中提供的提示。2022](https://arxiv.org/pdf/2110.08387.pdf)。
+
+下一步是整合知識並做出預測。我將問題重新格式化為 QA 格式以指導答案格式。
+
+*迅速的：*
+```
+問題：高爾夫的一部分是試圖獲得比其他人更高的總分。是還是不是？
+
+知識：高爾夫的目標是以最少的桿數打出一組球洞。一輪高爾夫球通常由 18 個洞組成。每個洞在標準高爾夫球場上一輪打一次。每桿計一分，總桿數決定比賽勝負。
+
+解釋與回答：
+```
+
+*答案1（信心非常高）：*
+```
+不，高爾夫的目標不是獲得比其他人更高的總分。相反，目標是以最少的桿數打完一組球洞。總桿數用於決定比賽的勝負，而不是總積分。
+```
+
+
+```
+問題：高爾夫的一部分是試圖獲得比其他人更高的總分。是還是不是？
+
+知識：高爾夫是一項精確的球桿和球運動，參賽選手（或高爾夫球手）使用多種類型的球桿以最少的擊球次數將球擊入球場上的一系列球洞中。目標是以最低分數完成課程，該分數是通過將每個洞的總桿數相加計算得出的。得分最低的玩家贏得遊戲。
+
+解釋與回答：
+```
+
+*回答2（信心低了很多）：*
+```
+是的，高爾夫的一部分是試圖獲得比其他人更高的總分。每個球員都試圖以最低分數完成課程，最低分數是通過將每個洞的總桿數相加計算得出的。得分最低的玩家贏得遊戲。
+```
+
+這個例子發生了一些非常有趣的事情。在第一個答案中，模型非常自信，但在第二個答案中就沒那麼自信了。我出於演示目的簡化了過程，但在得出最終答案時需要考慮的細節很少。查看論文了解更多信息。
 
 ---
 
-## Automatic Prompt Engineer (APE)
+## 自動提示工程師 (APE)
 
 ![](../img/APE.png)
 
-[Zhou et al., (2022)](https://arxiv.org/abs/2211.01910) propose automatic prompt engineer (APE) a framework for automatic instruction generation and selection. The instruction generation problem is framed as natural language synthesis addressed as a black-box optimization problem using LLMs to generate and search over candidate solutions. 
+[Zhou et al., (2022)](https://arxiv.org/abs/2211.01910) 提出了自動提示工程師 (APE) 自動指令生成和選擇的框架。指令生成問題被定義為自然語言合成，作為黑盒優化問題使用 LLM 生成和搜索候選解決方案。
 
-The first step involves a large language model (as inference model) that is given output demonstrations to generate instruction candidates for a task. These candidate solution will guide the search procedure. The instructions are executed using a target model, and then the most appropriate instruction is selected based on computed evaluation scores. 
+第一步涉及一個大型語言模型（作為推理模型），該模型提供輸出演示以生成任務的候選指令。這些候選解決方案將指導搜索過程。使用目標模型執行指令，然後根據計算的評估分數選擇最合適的指令。
 
-APE discovers a better zero-shot CoT prompt than the human engineered "Let's think step by step" prompt from (Kojima et al., 2022).
+APE 發現了一個比人工設計的“讓我們一步步思考”提示更好的零樣本 CoT 提示（Kojima 等人，2022）。
 
-The prompt "Let's work this out it a step by step to be sure we have the right answer." elicits chain-of-though reasoning and improves performance on the MultiArith and GSM8K benchmarks:
+提示“讓我們逐步解決這個問題，以確保我們有正確的答案。” 引發鍊式推理並提高 MultiArith 和 GSM8K 基準測試的性能：
 
 ![](../img/ape-zero-shot-cot.png)
 
-This paper touches on an important topic related to prompt engineering which is this idea of automatically optimizing prompts. While we don't go deep in this topic in this guide, here are few key papers if you are interested in the topic:
+本文涉及與提示工程相關的一個重要主題，即自動優化提示的想法。雖然我們不會在本指南中深入探討這個主題，但如果您對該主題感興趣，這裡有幾篇重要論文：
 
-- [AutoPrompt](https://arxiv.org/abs/2010.15980) - proposes an approach to automatically create prompts for a diverse set of tasks based on gradient-guided search.
-- [Prefix Tuning](https://arxiv.org/abs/2101.00190) - a lightweight alternative to fine-tuning that prepends a trainable continuous prefix for NLG tasks. 
-- [Prompt Tuning](https://arxiv.org/abs/2104.08691) - proposes a mechanism for learning soft prompts through back propagation.
+- [AutoPrompt](https://arxiv.org/abs/2010.15980) - 提出了一種基於梯度引導搜索自動為各種任務創建提示的方法。
+- [Prefix Tuning](https://arxiv.org/abs/2101.00190) - 微調的一種輕量級替代方法，它為 NLG 任務添加了可訓練的連續前綴。
+- [Prompt Tuning](https://arxiv.org/abs/2104.08691) - 提出了一種通過反向傳播學習軟提示的機制。
 
 ---
-[Previous Section (Basic Prompting)](./prompts-basic-usage.md)
+[上一節（基本提示）](./prompts-basic-usage.md)
 
-[Next Section (Applications)](./prompts-applications.md)
+[下一節（應用程序）](./prompts-applications.md)
